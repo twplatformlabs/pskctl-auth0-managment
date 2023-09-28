@@ -1,0 +1,109 @@
+---
+version: 2.1
+
+globals:
+  - &context empc-lab
+  - &shell op run --env-file op.env -- /bin/bash -eo pipefail
+
+on-push-main: &on-push-main
+  branches:
+    only: /main/
+  tags:
+    ignore: /.*/
+
+on-tag-main: &on-tag-main
+  branches:
+    ignore: /.*/
+  tags:
+    only: /.*/
+
+commands:
+
+  set-environment:
+    parameters:
+      cluster:
+        description: target cluster
+        type: string
+        default: ""
+      tag:
+        description: image to deploy
+        type: string
+        default: dev.${CIRCLE_SHA1:0:7}
+    steps:
+      - run:
+          name: set environment
+          command: |
+            op inject -i op.env -o $BASH_ENV
+            echo "export API_VERSION=<< parameters.tag >>" >> $BASH_ENV
+            source $BASH_ENV
+            op inject -i tpl/cosign.key.tpl -o cosign.key
+            op inject -i tpl/cosign.pub.tpl -o cosign.pub
+      - when:
+          condition: << parameters.cluster >>
+          steps:
+            - run:
+                name: set ~/.kube/config
+                command: |
+                  mkdir -p ~/.kube
+                  ENV=<< parameters.cluster >> op inject -i tpl/kubeconfig.tpl -o ~/.kube/config
+
+jobs:
+
+  deploy auth0 configuration:
+    parameters:
+      cluster:
+        description: target cluster
+        type: string
+      namespace:
+        description: deploy to this env namespace
+        type: string
+      tag:
+        description: image to deploy
+        type: string
+    docker:
+      - image: twdps/circleci-python-builder:alpine-stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - set-environment:
+          cluster: << parameters.cluster >>
+          tag: << parameters.tag >>
+      - run:
+          name: deploy hello-restful
+          command: |
+            helm upgrade hello-restful charts/hello-restful \
+                 --install --atomic --timeout 60s \
+                 --namespace demo-<< parameters.namespace>> \
+                 --values charts/hello-restful/values.yaml \
+                 --values charts/hello-restful/values-<< parameters.namespace >>.yaml \
+                 --set image.tag=<< parameters.tag >>
+      - run:
+          name: test healthz endpoint
+          command: |
+            reponse=$(curl https://twdps.io/v1/hello/healthz)
+            if [[ $(echo $reponse | jq -r .status) != "ok" ]]; then
+                echo "error: healthz not ok"
+                exit 1
+            fi
+      # deploy observability
+
+workflows:
+  version: 2
+
+  development-build:
+    jobs:
+      - python/static-analysis:
+          name: static code analysis
+          context: *context
+          shell: *shell
+          package-manager: *package-manager
+          install-dev: true
+          lint-path: api
+          report-coverage: codeclimate
+          after-checkout:
+            - run:
+                name: set API_VERSION
+                command: |
+                  echo "export API_VERSION=dev.${CIRCLE_SHA1:0:7}" >> $BASH_ENV
+                  source $BASH_ENV
+          filters: *on-push-main
