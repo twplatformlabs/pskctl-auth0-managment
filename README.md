@@ -22,7 +22,7 @@ The Auth0 tenant application created by this pipeline is used in two ways:
 - An the 0auth2/oidc integration with each of the kubernetes cluster to enable bounded access to team resources on the cluster, and
 - to authN/Z calls to the custom platfom product APIs (typically using the platform cli `pskctl`).
 
-The oauth0/oidc flow required by the pskctl tool is available in the free tier of Auth0. Complete these [bootstrap](doc/bootstrap.md) steps as part of signing up for Auth0 and preparing for the pipeline managed Auth0 configuration.  
+The oauth0/oidc flow required by the pskctl tool is available in the free tier of Auth0. Complete these [bootstrap](doc/bootstrap.md) steps, using your own cli and tenant identies, as part of signing up for Auth0 and preparing for the pipeline managed Auth0 configuration.  
 
 With a management api token now available, this pipeline will perform the following tasks:
 
@@ -51,3 +51,5 @@ These setting are all configurable in the request-body/TENANT.json file.
 - can be refreshed (refresh token provided)
 - absolute lifetime for refresh for token in active use is 7 days (604800)
 - an idle token cannot be refreshed after 2days (172800)
+
+[Maintainers notes](doc/maintainers.md)
