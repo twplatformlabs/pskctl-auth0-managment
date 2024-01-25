@@ -1,4 +1,5 @@
-
+"""client functions"""
+# pylint: disable=import-error
 import json
 from auth0.exceptions import Auth0Error
 from payload import format_client_payload

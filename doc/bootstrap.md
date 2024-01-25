@@ -9,11 +9,15 @@
 </div>
 <br />
 
+The PSK example engineering platform demonstrates use of dedicated, external authentication and authorization for customers (developers) using the platform.  
+
+Auth0 is used at the identity provider framework. Implemented as only a pass-through framework, Auth0 does not retain any user details or claims information. Role-based authorization within the platform is based on team membership. Github is used as the source for both, with actual github 'Teams' information used as the user claims.
+
 ## Auth0 tenant configuration
 
 Auth0 plays an important role in enabling the PSK platform cli to use github and github team membership for authentication and authorization with the engineering platform. While a critical component, it is also a fairly narrow slice of the overall flow.  
 
-In this use case, the idp plays a limited, pass-through function. When a developer (customer) of the Platform uses the cli to `login`, auth0 coordinates the pass-through to Github for authentication, and it fetches the users 'claims' in the form of their team memberships within the Github organization. These are inserted into the returned id-token, but that is it. Each individual use of the resulting token involves completely seperate authorization automation depending on the target of the request.  
+When a developer (customer) of the Platform uses the cli to `login`, auth0 coordinates the pass-through to Github for authentication, and it fetches the users 'claims' in the form of their team memberships within the Github organization. These are inserted into the returned id-token. Each individual use of the resulting token involves completely seperate authorization automation depending on the target of the request.  
 
 Because of this, the amount of configuration and the resulting testing needed is also quite limited. And, since the authenication workflow reuqires human interaction by design, while the configuration of the idp is automated there is a limited amount of automated testing that can used to validate the resulting idp Client. Mostly, when changes to the configuration are needed, the changes are pushed to the dev-tenant and then human interactive testing is used to validate the results.  
 
@@ -29,20 +33,18 @@ To start you need to create both dev and production oauth-apps in your github or
 
 3. Enter the necessary info the for the dev-pskctl auth0 tenant **dev-pskctl.us.auth0.com**
 
-_Note. In the next section we will create Auth0 Tenants for dev-pskctl an pskctl. In the free tier this will result in tenant domain of dev-pskctl.us.auth0.com and pskctl.us.auth0.com, respectively._ Using these auth0 Tenant domains for the homepage and callback URLs, create the OAuth Application.  
-
 > Note: You do not need to check Enable Device Flow here as this will be managed by Auth0
 
 ![Register OAuth App](images/github_oauth_app.png)
 
 On the screen that follows, create a new `Client Secret`. Save both the Client ID and the Client Secret in your secrets store.  
 
-4. Repeat for **pskctl.us.auth0.com**
+1. Repeat for **pskctl.us.auth0.com**
 
 ### Bootstrap Management API client in Auth0
 
-1. Login using github authentication - free tier is all that is needed
-   
+1. Create an account on auth0.com, using github authentication - free tier is all that is needed
+
 2. Create two tenants:
 
 * dev-pskctl

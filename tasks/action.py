@@ -1,3 +1,5 @@
+"""action functions"""
+# pylint: disable=import-error
 import time
 from auth0.exceptions import Auth0Error
 from config import RETRIES

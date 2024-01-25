@@ -1,3 +1,4 @@
+"""tasks setup"""
 from invoke import Collection
 
 from tasks import idp

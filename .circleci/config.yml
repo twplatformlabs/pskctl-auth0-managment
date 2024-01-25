@@ -1,9 +1,13 @@
 ---
 version: 2.1
 
+orbs:
+  op: twdps/onepassword@2.0.6
+  do: twdps/pipeline-events@3.2.2
+
 globals:
   - &context empc-lab
-  - &shell op run --env-file op.env -- /bin/bash -eo pipefail
+  - &executor-image twdps/circleci-python-builder:3.0.2
 
 on-push-main: &on-push-main
   branches:
@@ -21,89 +25,80 @@ commands:
 
   set-environment:
     parameters:
-      cluster:
-        description: target cluster
+      tenant:
+        description: set tenant ENV
         type: string
-        default: ""
-      tag:
-        description: image to deploy
-        type: string
-        default: dev.${CIRCLE_SHA1:0:7}
     steps:
-      - run:
-          name: set environment
-          command: |
-            op inject -i op.env -o $BASH_ENV
-            echo "export API_VERSION=<< parameters.tag >>" >> $BASH_ENV
-            source $BASH_ENV
-            op inject -i tpl/cosign.key.tpl -o cosign.key
-            op inject -i tpl/cosign.pub.tpl -o cosign.pub
-      - when:
-          condition: << parameters.cluster >>
-          steps:
-            - run:
-                name: set ~/.kube/config
-                command: |
-                  mkdir -p ~/.kube
-                  ENV=<< parameters.cluster >> op inject -i tpl/kubeconfig.tpl -o ~/.kube/config
+      - op/env:
+          env-file: op.<< parameters.tenant >>.env
 
 jobs:
 
-  deploy auth0 configuration:
-    parameters:
-      cluster:
-        description: target cluster
-        type: string
-      namespace:
-        description: deploy to this env namespace
-        type: string
-      tag:
-        description: image to deploy
-        type: string
+  configure-auth0-tenant:
+    description: configure auth0 tenant
     docker:
-      - image: twdps/circleci-python-builder:alpine-stable
+      - image: *executor-image
+    parameters:
+      tenant:
+        description: auth0 tenant to configure
+        type: string
     steps:
       - checkout
       - setup_remote_docker
       - set-environment:
-          cluster: << parameters.cluster >>
-          tag: << parameters.tag >>
+          tenant: << parameters.tenant >>
       - run:
-          name: deploy hello-restful
-          command: |
-            helm upgrade hello-restful charts/hello-restful \
-                 --install --atomic --timeout 60s \
-                 --namespace demo-<< parameters.namespace>> \
-                 --values charts/hello-restful/values.yaml \
-                 --values charts/hello-restful/values-<< parameters.namespace >>.yaml \
-                 --set image.tag=<< parameters.tag >>
+          name: install requirements
+          command: pip install -r requirements.txt
       - run:
-          name: test healthz endpoint
-          command: |
-            reponse=$(curl https://twdps.io/v1/hello/healthz)
-            if [[ $(echo $reponse | jq -r .status) != "ok" ]]; then
-                echo "error: healthz not ok"
-                exit 1
-            fi
-      # deploy observability
+          name: lint invoke tasks
+          command: pylint tasks
+      - run:
+          name: configure Auth0 tenant
+          command: inv idp.install
+      - run:
+          name: write tenant Application credentials to secrets store
+          command: bash scripts/write_client_credentials.sh
 
 workflows:
-  version: 2
 
-  development-build:
+  development tenant build:
     jobs:
-      - python/static-analysis:
-          name: static code analysis
+      - configure-auth0-tenant:
+          name: configure dev-pskctl tenant
           context: *context
-          shell: *shell
-          package-manager: *package-manager
-          install-dev: true
-          lint-path: api
-          report-coverage: codeclimate
-          after-checkout:
-            - run:
-                name: set API_VERSION
-                command: |
-                  echo "export API_VERSION=dev.${CIRCLE_SHA1:0:7}" >> $BASH_ENV
-                  source $BASH_ENV
+          tenant: dev-pskctl
           filters: *on-push-main
+
+  production tenant configuration:
+    jobs:
+      - configure-auth0-tenant:
+          name: configure pskctl tenant
+          context: *context
+          tenant: pskctl
+          filters: *on-tag-main
+
+      - do/release:
+          name: generate release notes
+          context: *context
+          on-tag: true
+          before-release:
+            - set-environment:
+                tenant: pskctl
+          requires:
+            - configure pskctl tenant
+          filters: *on-tag-main
+
+      - do/slack-bot:
+          name: post lab-events
+          context: *context
+          channel: lab-events
+          message: pskctl Auth0 tenant application release
+          include-link: true
+          include-tag: true
+          before-message:
+            - set-environment:
+                tenant: pskctl
+          requires:
+            - configure pskctl tenant
+          filters: *on-tag-main

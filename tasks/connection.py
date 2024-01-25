@@ -1,4 +1,5 @@
 """create and update commands"""
+# pylint: disable=import-error
 from auth0.exceptions import Auth0Error
 from payload import format_connection_payload
 

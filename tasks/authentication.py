@@ -1,4 +1,5 @@
 """auth0 sdk authentication"""
+# pylint: disable=import-error
 from auth0.authentication import GetToken
 from config import DOMAIN, MANAGEMENT_API_CLIENT_ID, MANAGEMENT_API_CLIENT_SECRET, MANAGEMENT_API_URL
 import requests
@@ -14,4 +15,3 @@ def get_admin_access_token():
         print(f"Error aquiring Management API access token: {err}")
 
     return access_token
-    

@@ -1,4 +1,5 @@
 """prepare json body for auth0 api calls"""
+# pylint: disable=unused-argument,redefined-outer-name
 import os
 import json
 from invoke import task
