@@ -89,7 +89,7 @@ workflows:
             - configure pskctl tenant
           filters: *on-tag-main
 
-      - do/slack-bot:
+      - do/slack:
           name: post lab-events
           context: *context
           channel: lab-events
