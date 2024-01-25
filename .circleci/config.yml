@@ -3,7 +3,7 @@ version: 2.1
 
 orbs:
   op: twdps/onepassword@2.0.6
-  do: twdps/pipeline-events@3.2.2
+  do: twdps/pipeline-events@3.2.3
 
 globals:
   - &context empc-lab
