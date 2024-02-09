@@ -6,7 +6,6 @@
 	</p>
   <br />
   <h3>pskctl-auth0-management</h3>
-    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/github/license/ThoughtWorks-DPS/pskctl-auth0-management"></a> <a href="https://github.com"><img src="https://img.shields.io/badge/-social-blank.svg?style=social&logo=github"></a>
 </div>
 <br />
 
