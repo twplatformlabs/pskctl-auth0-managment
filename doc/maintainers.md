@@ -44,19 +44,15 @@ The token received will contain the following info:
 The display should show the Signature as verfied and the contents of the id token will include the following:  
 ```
 {
-  "https://github.org/ThoughtWorks-DPS/teams": [
-    "ThoughtWorks-DPS/demo",
-    "ThoughtWorks-DPS/demo-publications",
-    "ThoughtWorks-DPS/demo-reviews",
-    "ThoughtWorks-DPS/twdps",
-    "ThoughtWorks-DPS/twdps-core-collab-team",
-    "ThoughtWorks-DPS/twdps-core-labs-team",
-    "ThoughtWorks-DPS/twdps-orb-authors",
-    "ThoughtWorks-DPS/twdps-sme"
+  "https://github.org/twplatformlabs/teams": [
+    "twplatformlabs/demo",
+    "twplatformlabs/demo-publications",
+    "twplatformlabs/demo-reviews",
+    "twplatformlabs/platform"
   ],
   "cli": "dev-pskctl",
   "iss": "https://dev-pskctl.us.auth0.com/",
   ...
 }
 ```
-The list of teams will be all those teams in which  you are a member in the ThoughtWorks-DPS github org.
+The list of teams will be all those teams in which  you are a member in the twplatformlabs github org.

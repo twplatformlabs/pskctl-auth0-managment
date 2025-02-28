@@ -38,7 +38,7 @@ exports.onExecutePostLogin = async (event, api) => {
 
     // add teams list as claims to jwt
     if (event.authorization) {
-      api.idToken.setCustomClaim("https://github.org/ThoughtWorks-DPS/teams", github_teams);
+      api.idToken.setCustomClaim("https://github.org/twplatformlabs/teams", github_teams);
       api.idToken.setCustomClaim("cli", "$TENANT");
     }
 

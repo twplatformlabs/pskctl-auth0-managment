@@ -2,12 +2,12 @@
 version: 2.1
 
 orbs:
-  op: twdps/onepassword@2.0.6
-  do: twdps/pipeline-events@3.2.3
+  op: twdps/onepassword@3.0.0
+  do: twdps/pipeline-events@5.0.1
 
 globals:
-  - &context empc-lab
-  - &executor-image twdps/circleci-python-builder:3.0.2
+  - &context platform
+  - &executor-image twdps/circleci-python-builder:5.1.1
 
 on-push-main: &on-push-main
   branches:
@@ -78,27 +78,19 @@ workflows:
           tenant: pskctl
           filters: *on-tag-main
 
-      - do/release:
+      - do/gh-release:
           name: generate release notes
           context: *context
-          on-tag: true
+          notes-from-file: release.md
+          include-commit-msg: true
           before-release:
-            - set-environment:
-                tenant: pskctl
-          requires:
-            - configure pskctl tenant
-          filters: *on-tag-main
-
-      - do/slack:
-          name: post lab-events
-          context: *context
-          channel: lab-events
-          message: pskctl Auth0 tenant application release
-          include-link: true
-          include-tag: true
-          before-message:
-            - set-environment:
-                tenant: pskctl
+            - do/slack-bot:
+                channel: lab-events
+                message: Release pskctl-auth0-management
+                include-link: true
+                include-tag: true
+            - op/env:
+                env-file: op.pskctl.env
           requires:
             - configure pskctl tenant
           filters: *on-tag-main
