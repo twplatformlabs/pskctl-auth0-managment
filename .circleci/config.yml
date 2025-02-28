@@ -84,13 +84,13 @@ workflows:
           notes-from-file: release.md
           include-commit-msg: true
           before-release:
+            - op/env:
+                env-file: op.pskctl.env
             - do/slack-bot:
                 channel: lab-events
                 message: Release pskctl-auth0-management
                 include-link: true
                 include-tag: true
-            - op/env:
-                env-file: op.pskctl.env
           requires:
             - configure pskctl tenant
           filters: *on-tag-main
