@@ -40,7 +40,10 @@ jobs:
       - image: *executor-image
     parameters:
       tenant:
-        description: auth0 tenant to configure
+        description: auth0 tenant device-auth-flow to configure
+        type: string
+      basic:
+        description: auth0 tenant basic-auth configure
         type: string
     steps:
       - checkout
@@ -54,28 +57,36 @@ jobs:
           name: lint invoke tasks
           command: pylint tasks
       - run:
-          name: configure Auth0 tenant
+          name: configure Auth0 tenant and device-auth-flow client
           command: inv idp.install
       - run:
+          name: write device-auth-flow client credentials to secrets store
+          command: bash scripts/write_client_credentials.sh << parameters.tenant >>
+      - run:
+          name: configure basic-authentication client
+          command: inv idp.install_basic
+      - run:
           name: write tenant Application credentials to secrets store
-          command: bash scripts/write_client_credentials.sh
+          command: bash scripts/write_client_credentials.sh << parameters.basic >>
 
 workflows:
 
   development tenant build:
     jobs:
       - configure-auth0-tenant:
-          name: configure dev-pskctl tenant
+          name: configure dev tenant
           context: *context
           tenant: dev-pskctl
+          basic: dev-basic-authentication
           filters: *on-push-main
 
   production tenant configuration:
     jobs:
       - configure-auth0-tenant:
-          name: configure pskctl tenant
+          name: configure prod tenant
           context: *context
           tenant: pskctl
+          basic: basic-authentication
           filters: *on-tag-main
 
       - do/gh-release:
@@ -92,5 +103,5 @@ workflows:
                 include-link: true
                 include-tag: true
           requires:
-            - configure pskctl tenant
+            - configure prod tenant
           filters: *on-tag-main
