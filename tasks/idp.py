@@ -21,7 +21,7 @@ def install(ctx):
 def install_basic(ctx):
     """install all psk auth0 customizations"""
     auth0 = Auth0(DOMAIN, get_admin_access_token())
-    client_id = create_auth0_client(auth0, BASIC_AUTH)
+    _client_id = create_auth0_client(auth0, BASIC_AUTH)
 
 @task
 def install_client(ctx):
