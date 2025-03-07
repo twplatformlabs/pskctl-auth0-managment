@@ -28,7 +28,8 @@
       "client_credentials"
   ],
   "callbacks": [
-    "https://alertmanager.sbx-i01-aws-us-east-1.twplatformlabs.org/oauth2/callback"
+    "https://alertmanager.sbx-i01-aws-us-east-1.twplatformlabs.org/oauth2/callback",
+    "https://prometheus.sbx-i01-aws-us-east-1.twplatformlabs.org/oauth2/callback"
   ],
   "web_origins": [
     "https://*.twplatformlabs.org"
