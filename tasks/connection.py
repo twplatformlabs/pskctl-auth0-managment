@@ -3,10 +3,10 @@
 from auth0.exceptions import Auth0Error
 from payload import format_connection_payload
 
-def create_auth0_connection(auth0, custom_connection, client_id):
+def create_auth0_connection(auth0, custom_connection, client_ids):
     """create or patch social connection"""
     connection_body = format_connection_payload(custom_connection)
-    connection_body['enabled_clients'] = [ client_id ]
+    connection_body['enabled_clients'] = client_ids
     existing = auth0.connections.all()
     connection_id = ""
 

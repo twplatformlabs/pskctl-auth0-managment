@@ -26,7 +26,7 @@ def create_auth0_client(auth0, custom_client):
         client_id = result['client_id']
         client_credentials['client_id']=result['client_id']
         client_credentials['client_secret']=result['client_secret']
-        with open("client_credentials.json", "w", encoding='UTF-8') as outfile:
+        with open(f"{custom_client}-client_credentials.json", "w", encoding='UTF-8') as outfile:
             outfile.write(json.dumps(client_credentials, indent=4))
 
     return client_id

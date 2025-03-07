@@ -63,9 +63,6 @@ jobs:
           name: write device-auth-flow client credentials to secrets store
           command: bash scripts/write_client_credentials.sh << parameters.tenant >>
       - run:
-          name: configure basic-authentication client
-          command: inv idp.install-basic
-      - run:
           name: write tenant Application credentials to secrets store
           command: bash scripts/write_client_credentials.sh << parameters.basic >>
 

@@ -3,9 +3,9 @@ set -eo pipefail
 
 export client=$1
 
-if [[ -f "client_credentials.json" ]]; then
+if [[ -f "$client-client_credentials.json" ]]; then
   echo "write auth0 $client client credentials"
-  Auth0ClientCredentials=$(jq . < client_credentials.json)
+  Auth0ClientCredentials=$(jq . < $client-client_credentials.json)
   TenantClientID=$(echo $Auth0ClientCredentials | jq .client_id | sed 's/"//g' | tr -d \\n)
   TenantClientSecret=$(echo $Auth0ClientCredentials | jq .client_secret | sed 's/"//g' | tr -d \\n)
 
