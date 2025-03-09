@@ -1,5 +1,5 @@
 {
-  "name": "basic-authentication",
+  "name": "web-authentication",
   "is_token_endpoint_ip_header_trusted": false,
   "description": "EMPC platform labs web oidc auth0 application definition",
   "is_first_party": true,
