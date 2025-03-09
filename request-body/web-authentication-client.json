@@ -1,7 +1,7 @@
 {
-  "name": "dev-basic-authentication",
+  "name": "basic-authentication",
   "is_token_endpoint_ip_header_trusted": false,
-  "description": "EMPC platform labs dev basic oidc auth0 application definition",
+  "description": "EMPC platform labs web oidc auth0 application definition",
   "is_first_party": true,
   "oidc_conformant": true,
   "refresh_token": {
@@ -28,8 +28,8 @@
       "client_credentials"
   ],
   "callbacks": [
-    "https://alertmanager.sbx-i01-aws-us-east-1.twplatformlabs.org/oauth2/callback",
-    "https://prometheus.sbx-i01-aws-us-east-1.twplatformlabs.org/oauth2/callback"
+    "https://alertmanager.prod-i01-aws-us-east-2.twplatformlabs.org/oauth2/callback",
+    "https://prometheus.prod-i01-aws-us-east-2.twplatformlabs.org/oauth2/callback"
   ],
   "web_origins": [
     "https://*.twplatformlabs.org"
