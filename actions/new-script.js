@@ -5,12 +5,13 @@
 * @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
 */
 exports.onExecutePostLogin = async (event, api) => {
-  const requiredOrganization = 'twplatformlabs'; //remove this line
+
+  const requiredOrganization = 'YOUR_REQUIRED_ORGANIZATION'; // Replace with your GitHub organization name
 
   // get users social_connection access token
   const { ManagementClient } = require('auth0');
   const management = new ManagementClient({
-    domain: '$DOMAIN',
+    domain: 'dev-pskctl.us.auth0.com',
     clientId: event.secrets.MANAGEMENT_API_CLIENT_ID,
     clientSecret: event.secrets.MANAGEMENT_API_CLIENT_SECRET,
     scope: 'read:users'
@@ -27,7 +28,7 @@ exports.onExecutePostLogin = async (event, api) => {
   const options = {
     headers: {
       'Authorization': `token ${access_token}`,
-      'User-Agent': '$TENANT'
+      'User-Agent': 'dev-pskctl'
     }
   };
 
@@ -37,7 +38,7 @@ exports.onExecutePostLogin = async (event, api) => {
       return team.organization.login + "/" + team.slug;
     });
 
-    // Check if the user is part of the required organization - remove this check
+    // Check if the user is part of the required organization
     const isInOrganization = response.data.some(team => team.organization.login === requiredOrganization);
 
     if (!isInOrganization) {
@@ -52,7 +53,7 @@ exports.onExecutePostLogin = async (event, api) => {
     // add teams list as claims to jwt
     if (event.authorization) {
       api.idToken.setCustomClaim("https://github.org/twplatformlabs/teams", github_teams);
-      api.idToken.setCustomClaim("cli", "$TENANT");
+      api.idToken.setCustomClaim("cli", "dev-pskctl");
     }
 
   } catch (error) {
@@ -61,6 +62,7 @@ exports.onExecutePostLogin = async (event, api) => {
     if (event.authorization) {
       api.idToken.setCustomClaim("github_teams_error", error.message);
     }
+    return api.accessDenied("Error fetching github teams: "+ error.message)
   }
 
 };
