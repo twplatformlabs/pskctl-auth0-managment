@@ -33,6 +33,9 @@ exports.onExecutePostLogin = async (event, api) => {
 
   try {
     var response = await axios.get(githubAPIUrl, options);
+    
+    console.log(JSON.stringify(response.data, null, 2));  //debug
+
     var github_teams = response.data.map(function(team) {
       return team.organization.login + "/" + team.slug;
     });
