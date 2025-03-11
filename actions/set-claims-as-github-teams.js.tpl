@@ -32,10 +32,7 @@ exports.onExecutePostLogin = async (event, api) => {
   };
 
   try {
-    console.log("starting the action step");
     var response = await axios.get(githubAPIUrl, options);
-
-    console.log(JSON.stringify(response.data, null, 2));  //debug
 
     var github_teams = response.data.map(function(team) {
       return team.organization.login + "/" + team.slug;
@@ -45,12 +42,7 @@ exports.onExecutePostLogin = async (event, api) => {
     const isInOrganization = response.data.some(team => team.organization.login === requiredOrganization);
 
     if (!isInOrganization) {
-      // User is not part of the required organization, return an error
-      if (event.authorization) {
-        api.idToken.setCustomClaim("github_teams_error", `User is not a member of the required GitHub organization: ${requiredOrganization}`);
-      }
-        return api.accessDenied(`User is not a member of the required GitHub organization: ${requiredOrganization}`);
-
+      return api.access.deny(`User is not a member of the required GitHub organization: ${requiredOrganization}`);
     }
 
     // add teams list as claims to jwt
